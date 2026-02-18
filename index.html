@@ -1,240 +1,609 @@
 <!doctype html>
 <html lang="en">
+  <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-C1979H1PQJ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-C1979H1PQJ');
+</script>
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Second Check — Turn price into time</title>
-<meta name="description" content="Second Check converts product prices into working hours, so you can think before you click Buy." />
-<meta name="theme-color" content="#0b0d10" />
-<link rel="icon" href="icon48.png" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Second Check — Turn price into time</title>
+  <meta name="description" content="Second Check converts product prices into working hours, so you can think before you click Buy." />
+  <meta name="theme-color" content="#0b0d10" />
 
-<style>
-:root{
-  --bg:#0b0d10;
-  --border:rgba(255,255,255,.12);
-  --text:rgba(255,255,255,.92);
-  --muted:rgba(255,255,255,.65);
-  --yellow:#ffd600;
-}
+  <link rel="icon" href="assets/icon48.png" />
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-  background:#0b0d10;
-  color:var(--text);
-  overflow-x:hidden;
-}
+  <style>
+    :root{
+      --bg:#0b0d10;
+      --panel: rgba(255,255,255,.06);
+      --panel2: rgba(255,255,255,.08);
+      --border: rgba(255,255,255,.12);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.68);
+      --yellow:#ffd600;
+      --shadow: 0 18px 70px rgba(0,0,0,.55);
+      --radius: 22px;
+      --max: 1120px;
+    }
 
-a{text-decoration:none;color:inherit}
+    *{ box-sizing:border-box; }
+    html{ scroll-behavior:smooth; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      color:var(--text);
+      background: var(--bg);
+      overflow-x:hidden;
+    }
+    a{ color:inherit; text-decoration:none; }
 
-.bg{
-  position:fixed;
-  inset:-40vh -40vw;
-  z-index:-1;
-  background:
-    radial-gradient(900px 600px at 20% 20%, rgba(255,214,0,.22), transparent 60%),
-    radial-gradient(900px 600px at 80% 30%, rgba(255,214,0,.10), transparent 60%),
-    linear-gradient(#0b0d10,#0b0d10);
-  animation:drift 14s ease-in-out infinite;
-}
-@keyframes drift{
-  0%{transform:translate(0,0)}
-  50%{transform:translate(2vw,-2vh)}
-  100%{transform:translate(0,0)}
-}
+    /* -------------------------
+       Animated background glow
+    --------------------------*/
+    .bg{
+      position: fixed;
+      inset: -40vh -40vw;
+      z-index: -2;
+      background:
+        radial-gradient(900px 600px at 20% 20%, rgba(255,214,0,.22), transparent 60%),
+        radial-gradient(900px 600px at 85% 30%, rgba(97,218,251,.14), transparent 60%),
+        radial-gradient(900px 600px at 30% 85%, rgba(168,85,247,.12), transparent 60%),
+        radial-gradient(1100px 800px at 70% 80%, rgba(34,197,94,.08), transparent 62%),
+        linear-gradient(#0b0d10, #0b0d10);
+      filter: saturate(110%);
+      transform: translate3d(0,0,0);
+      animation: drift 16s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .grain{
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events:none;
+      opacity: .08;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E");
+      mix-blend-mode: overlay;
+    }
+    @keyframes drift{
+      0%   { transform: translate3d(0,0,0) scale(1); }
+      35%  { transform: translate3d(2vw,-2vh,0) scale(1.02); }
+      70%  { transform: translate3d(-2.5vw,1.5vh,0) scale(1.03); }
+      100% { transform: translate3d(0,0,0) scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce){
+      .bg{ animation:none; }
+    }
 
-.wrap{max-width:1100px;margin:0 auto;padding:40px 20px}
+    /* Layout */
+    .wrap{ max-width:var(--max); margin:0 auto; padding: 22px 18px; }
 
-.nav{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:60px;
-}
-.brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  font-weight:900;
-  letter-spacing:-.4px;
-}
-.brand img{width:22px;height:22px;border-radius:6px}
-.brand span{color:var(--yellow)}
+    /* Nav */
+    .nav{
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(to bottom, rgba(11,13,16,.86), rgba(11,13,16,.40));
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .navInner{
+      max-width:var(--max);
+      margin:0 auto;
+      padding: 14px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      font-weight:950; letter-spacing:-.3px;
+    }
+    .brand img{ width:22px; height:22px; border-radius:7px; }
+    .brand span{ color:var(--yellow); }
 
-.btn{
-  padding:12px 18px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background:rgba(255,255,255,.06);
-  font-weight:800;
-}
-.btn.primary{
-  background:var(--yellow);
-  color:#000;
-  border:none;
-}
+    .navLinks{ display:flex; gap:14px; align-items:center; color:var(--muted); font-size:14px; }
+    .navLinks a:hover{ color:var(--text); }
 
-.hero{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:40px;
-  align-items:center;
-}
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 850;
+      font-size: 14px;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+      cursor: pointer;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.18); }
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(255,214,0,1), rgba(255,214,0,.90));
+      color:#0b0d10;
+      border-color: rgba(255,214,0,.6);
+      box-shadow: 0 18px 40px rgba(255,214,0,.18);
+    }
 
-h1{
-  font-size:48px;
-  line-height:1.1;
-  margin:0 0 20px;
-  letter-spacing:-1px;
-}
+    /* Sections */
+    .hero{ padding: 54px 0 30px; }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.12fr .88fr;
+      gap: 22px;
+      align-items:center;
+    }
+    .kicker{
+      display:inline-flex; align-items:center; gap:10px;
+      padding: 8px 12px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      border-radius: 999px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(10px);
+    }
+    .dot{ width:8px; height:8px; border-radius:50%; background: var(--yellow); box-shadow: 0 0 0 6px rgba(255,214,0,.12); }
+    h1{
+      margin: 0 0 12px;
+      font-size: clamp(38px, 4.2vw, 60px);
+      line-height: 1.03;
+      letter-spacing: -1px;
+    }
+    .sub{
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.55;
+      max-width: 60ch;
+      margin: 0 0 18px;
+    }
+    .ctaRow{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-top: 14px; }
+    .micro{ color: var(--muted); font-size: 13px; margin-top: 10px; }
+    .micro strong{ color: rgba(255,255,255,.85); }
 
-.sub{
-  color:var(--muted);
-  font-size:18px;
-  line-height:1.6;
-}
+    .section{ padding: 34px 0; }
+    .grid3{
+      display:grid; grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
 
-.metrics{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:16px;
-  margin-top:30px;
-}
+    .card{
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+      min-height: 128px;
+      position: relative;
+      overflow: hidden;
+    }
+    .cardTitle{ font-weight: 950; letter-spacing: -.3px; margin-bottom: 8px; }
+    .cardText{ color: var(--muted); font-size: 14px; line-height: 1.55; }
 
-.metric{
-  border:1px solid var(--border);
-  padding:16px;
-  border-radius:16px;
-  background:rgba(255,255,255,.05);
-}
+    /* Shine */
+    .shine::after{
+      content:"";
+      position:absolute;
+      top:-50%;
+      left:-75%;
+      width:50%;
+      height:200%;
+      background: linear-gradient(120deg,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.08) 50%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+      pointer-events:none;
+    }
+    .shine:hover::after{ left: 120%; }
 
-.metric .num{
-  font-size:28px;
-  font-weight:900;
-  color:var(--yellow);
-}
+    /* Mock area */
+    .mockWrap{
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.09), rgba(255,255,255,.05));
+      border-radius: 28px;
+      padding: 14px;
+      box-shadow: 0 26px 90px rgba(0,0,0,.60);
+      backdrop-filter: blur(14px);
+      position: relative;
+      overflow:hidden;
+    }
+    .mockGlow{
+      position:absolute; inset:-120px;
+      background: radial-gradient(circle at 25% 20%, rgba(255,214,0,.22), transparent 55%),
+                  radial-gradient(circle at 90% 25%, rgba(97,218,251,.12), transparent 50%),
+                  radial-gradient(circle at 50% 90%, rgba(168,85,247,.10), transparent 55%);
+      pointer-events:none;
+      animation: glowShift 10s ease-in-out infinite;
+    }
+    @keyframes glowShift{
+      0% { transform: translate3d(0,0,0) scale(1); opacity: .95; }
+      50%{ transform: translate3d(18px,-12px,0) scale(1.03); opacity: .9; }
+      100%{ transform: translate3d(0,0,0) scale(1); opacity: .95; }
+    }
 
-.mock{
-  display:flex;
-  gap:20px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
+    /* Floating screenshots */
+    @keyframes floaty {
+      0%   { transform: translateY(0px); }
+      50%  { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    .floatShot{ animation: floaty 5.5s ease-in-out infinite; will-change: transform; }
+    .floatShot.delay{ animation-delay: 0.9s; }
+    .floatShot:hover{ animation-play-state: paused; }
 
-.mock img{
-  width:100%;
-  max-width:320px;
-  border-radius:20px;
-  border:1px solid var(--border);
-  box-shadow:0 30px 70px rgba(0,0,0,.6);
-  animation:float 5s ease-in-out infinite;
-}
-.mock img:nth-child(2){animation-delay:1s}
+    @media (prefers-reduced-motion: reduce){
+      .floatShot, .floatShot.delay{ animation: none; }
+      .mockGlow{ animation:none; }
+    }
 
-@keyframes float{
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-10px)}
-  100%{transform:translateY(0)}
-}
+    /* Tilt wrap */
+    .tiltWrap{ perspective: 1200px; }
+    .tiltInner{
+      transition: transform 0.18s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
 
-.section{
-  margin-top:80px;
-}
+    /* Counters */
+    .metrics{
+      display:grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+    .metric{
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      border-radius: 18px;
+      padding: 14px;
+      box-shadow: 0 16px 60px rgba(0,0,0,.45);
+      backdrop-filter: blur(12px);
+    }
+    .metric .num{
+      font-weight: 980;
+      font-size: 26px;
+      letter-spacing: -0.6px;
+    }
+    .metric .lbl{
+      color: var(--muted);
+      margin-top: 6px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+    .metric .num span{ color: var(--yellow); }
 
-.card{
-  border:1px solid var(--border);
-  padding:20px;
-  border-radius:20px;
-  background:rgba(255,255,255,.05);
-  margin-bottom:20px;
-}
+    /* Reveal on scroll */
+    .reveal{
+      opacity: 0;
+      transform: translateY(14px);
+      filter: blur(2px);
+      transition: opacity .6s ease, transform .6s ease, filter .6s ease;
+      will-change: transform, opacity;
+    }
+    .reveal.show{
+      opacity: 1;
+      transform: translateY(0px);
+      filter: blur(0px);
+    }
+    .reveal.delay1{ transition-delay: .08s; }
+    .reveal.delay2{ transition-delay: .16s; }
+    .reveal.delay3{ transition-delay: .24s; }
 
-.footer{
-  margin-top:80px;
-  color:var(--muted);
-  font-size:14px;
-  display:flex;
-  justify-content:space-between;
-  flex-wrap:wrap;
-  gap:10px;
-}
+    /* Footer */
+    .footer{
+      padding: 26px 0 36px;
+      color: var(--muted);
+      font-size: 13px;
+      border-top: 1px solid rgba(255,255,255,.08);
+      display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-top: 22px;
+    }
 
-@media(max-width:900px){
-  .hero{grid-template-columns:1fr}
-  .metrics{grid-template-columns:1fr}
-}
-</style>
+    /* Responsive */
+    @media (max-width: 1040px){
+      .heroGrid{ grid-template-columns: 1fr; }
+      .metrics{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 960px){
+      .grid3{ grid-template-columns: 1fr; }
+      .navLinks{ display:none; }
+    }
+  </style>
 </head>
 
 <body>
-<div class="bg"></div>
+  <div class="bg"></div>
+  <div class="grain"></div>
 
-<div class="wrap">
+  <div class="nav">
+    <div class="navInner">
+      <a class="brand" href="#">
+        <img src="assets/icon48.png" alt="Second Check icon">
+        <div>Second<span>Check</span></div>
+      </a>
 
-<div class="nav">
-  <div class="brand">
-    <img src="icon48.png">
-    <div>Second<span>Check</span></div>
-  </div>
-  <a class="btn primary" href="#">Add to Chrome</a>
-</div>
-
-<div class="hero">
-  <div>
-    <h1>What does this purchase really cost you?</h1>
-    <div class="sub">
-      Second Check converts product prices into working hours based on your income.
-      It helps you pause and see the real trade-off before you click Buy.
-    </div>
-
-    <div class="metrics">
-      <div class="metric">
-        <div class="num">3s</div>
-        <div>To turn a price into time</div>
+      <div class="navLinks">
+        <a href="#how">How it works</a>
+        <a href="#features">Features</a>
+        <a href="#privacy">Privacy</a>
       </div>
-      <div class="metric">
-        <div class="num">1 click</div>
-        <div>Scan the current tab</div>
-      </div>
-      <div class="metric">
-        <div class="num">4+</div>
-        <div>Currencies supported</div>
-      </div>
+
+      <a class="btn primary" href="CHROME_WEBSTORE_URL_HERE" target="_blank" rel="noreferrer" onclick="gtag('event','click_add_to_chrome',{event_category:'engagement',event_label:'navbar'});">
+        Add to Chrome
+      </a>
     </div>
   </div>
 
-  <div class="mock">
-    <img src="Screenshot_17.png" alt="">
-    <img src="Screenshot_18.png" alt="">
-  </div>
-</div>
+  <div class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="heroGrid">
+        <div class="reveal show">
+          <div class="kicker"><span class="dot"></span> Turn price into time — instantly</div>
+          <h1>What does this purchase really cost you?</h1>
+          <p class="sub">
+            Second Check converts product prices into working hours based on your income.
+            It helps you pause, see the trade-off clearly, and decide before you click Buy.
+          </p>
 
-<div class="section">
-  <div class="card">
-    <strong>Accurate price detection</strong>
-    <div class="sub">Built to find the real product price, not shipping or noise.</div>
+          <div class="ctaRow">
+            <a class="btn primary" href="CHROME_WEBSTORE_URL_HERE" target="_blank" rel="noreferrer" onclick="gtag('event','click_add_to_chrome',{event_category:'engagement',event_label:'hero'});">Add to Chrome</a>
+            <a class="btn" href="#how">See how it works</a>
+          </div>
+
+          <div class="micro">
+            Free. Lightweight. <strong>No account</strong> required.
+          </div>
+
+          <!-- METRICS (animated counters) -->
+          <div class="metrics">
+            <div class="metric reveal delay1">
+              <div class="num"><span class="count" data-from="0" data-to="3" data-suffix="s">0</span></div>
+              <div class="lbl">to turn a price into hours</div>
+            </div>
+            <div class="metric reveal delay2">
+              <div class="num"><span class="count" data-from="0" data-to="1" data-suffix="-click">0</span></div>
+              <div class="lbl">scan on the current tab</div>
+            </div>
+            <div class="metric reveal delay3">
+              <div class="num"><span class="count" data-from="0" data-to="4" data-suffix="+">0</span></div>
+              <div class="lbl">currencies supported</div>
+            </div>
+            <div class="metric reveal delay3">
+              <div class="num"><span class="count" data-from="0" data-to="0" data-suffix="$">0</span></div>
+              <div class="lbl">to start using it</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REAL SCREENSHOTS MOCKUP -->
+        <div class="mockWrap reveal delay1" aria-label="Extension preview">
+          <div class="mockGlow"></div>
+
+          <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; position:relative; z-index:2;">
+            <!-- Shot 1 -->
+            <div class="tiltWrap" style="flex:1; min-width:260px; max-width:360px;">
+              <div class="tiltInner">
+                <img src="assets/app-home.png"
+                     class="floatShot"
+                     style="width:100%; border-radius:24px; border:1px solid rgba(255,255,255,.12); box-shadow:0 30px 90px rgba(0,0,0,.65); display:block;"
+                     alt="Second Check Home view">
+              </div>
+            </div>
+
+            <!-- Shot 2 -->
+            <div class="tiltWrap" style="flex:1; min-width:260px; max-width:360px;">
+              <div class="tiltInner">
+                <img src="assets/app-settings.png"
+                     class="floatShot delay"
+                     style="width:100%; border-radius:24px; border:1px solid rgba(255,255,255,.12); box-shadow:0 30px 90px rgba(0,0,0,.65); display:block;"
+                     alt="Second Check Settings view">
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px; text-align:center; color:rgba(255,255,255,.6); font-size:13px; position:relative; z-index:2;">
+            Real extension preview.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section id="how" class="section">
+      <div class="grid3">
+        <div class="card shine reveal">
+          <div class="cardTitle">1) Scan</div>
+          <div class="cardText">Scan the current product page or paste a product link.</div>
+        </div>
+        <div class="card shine reveal delay1">
+          <div class="cardTitle">2) Convert</div>
+          <div class="cardText">We convert the price into hours using your income and monthly work hours.</div>
+        </div>
+        <div class="card shine reveal delay2">
+          <div class="cardTitle">3) Decide</div>
+          <div class="cardText">Buy it, skip it, or mark “Not worth” and track what you saved.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section id="features" class="section">
+      <div class="grid3">
+        <div class="card shine reveal">
+          <div class="cardTitle">Accurate price detection</div>
+          <div class="cardText">Built to find the real product price (not shipping), even on dynamic pages.</div>
+        </div>
+        <div class="card shine reveal delay1">
+          <div class="cardTitle">Manual mode</div>
+          <div class="cardText">Enter any price and instantly see the time cost in your own currency context.</div>
+        </div>
+        <div class="card shine reveal delay2">
+          <div class="cardTitle">Savings tracker</div>
+          <div class="cardText">Keep a running total of purchases you avoided — simple, motivating, real.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRIVACY -->
+    <section id="privacy" class="section">
+      <div class="card reveal" style="min-height:auto;">
+        <div class="cardTitle">Privacy</div>
+        <div class="cardText">
+          Second Check is built to stay lightweight and privacy-aware.
+          We may collect limited, anonymized usage data to improve the extension and analyze general trends.
+          We do not collect personal information such as names, emails, passwords, or payment details.
+          <br><br>
+          <a class="btn" href="privacy.html">Read Privacy Policy</a>
+          <a class="btn" href="terms.html" style="margin-left:10px;">Read Terms</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- FINAL CTA -->
+    <section class="section">
+      <div class="card shine reveal" style="min-height:auto; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+        <div>
+          <div class="cardTitle" style="margin-bottom:6px;">Before you buy, take a second.</div>
+          <div class="cardText">Make the trade-off visible. Keep your spending intentional.</div>
+        </div>
+        <a class="btn primary" href="CHROME_WEBSTORE_URL_HERE" target="_blank" rel="noreferrer" onclick="gtag('event','click_add_to_chrome',{event_category:'engagement',event_label:'final_cta'});">Add to Chrome</a>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div>© <span id="y"></span> Second Check</div>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="mailto:secondcheck.app@gmail.com">Contact</a>
+      </div>
+    </footer>
   </div>
 
-  <div class="card">
-    <strong>Manual price mode</strong>
-    <div class="sub">Enter any price and instantly see how many hours it costs.</div>
-  </div>
+  <script>
+    // Year
+    document.getElementById('y').textContent = new Date().getFullYear();
 
-  <div class="card">
-    <strong>Savings tracker</strong>
-    <div class="sub">Track how much you saved by choosing “Not worth”.</div>
-  </div>
-</div>
+    // Scroll reveal
+    const revealEls = Array.from(document.querySelectorAll('.reveal'));
+    const io = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) {
+          e.target.classList.add('show');
+          io.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.12 });
 
-<div class="footer">
-  <div>© 2024 Second Check</div>
-  <div>
-    <a href="privacy.html">Privacy</a> ·
-    <a href="terms.html">Terms</a>
-  </div>
-</div>
+    revealEls.forEach(el => {
+      // keep hero main visible immediately, but observe the rest
+      if (!el.closest('.hero') || el.classList.contains('delay1') || el.classList.contains('delay2') || el.classList.contains('delay3')) {
+        io.observe(el);
+      }
+    });
 
-</div>
+    // Counter animation (runs when metrics area becomes visible)
+    function animateCount(el){
+      const from = Number(el.dataset.from ?? 0);
+      const to = Number(el.dataset.to ?? 0);
+      const suffix = el.dataset.suffix ?? '';
+      const duration = 900; // ms
+      const start = performance.now();
+
+      function tick(now){
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3); // easeOutCubic
+        const val = from + (to - from) * eased;
+
+        // integer counters for clean look
+        const out = Math.round(val);
+        el.textContent = `${out}${suffix}`;
+
+        if (t < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    const counters = Array.from(document.querySelectorAll('.count'));
+    let countersStarted = false;
+
+    const metricsBox = document.querySelector('.metrics');
+    if (metricsBox) {
+      const mio = new IntersectionObserver((entries) => {
+        if (countersStarted) return;
+        for (const e of entries) {
+          if (e.isIntersecting) {
+            countersStarted = true;
+            counters.forEach(animateCount);
+            mio.disconnect();
+            break;
+          }
+        }
+      }, { threshold: 0.35 });
+      mio.observe(metricsBox);
+    }
+
+    // Mouse tilt (subtle, per screenshot)
+    const tiltWraps = document.querySelectorAll('.tiltWrap');
+    tiltWraps.forEach(wrap => {
+      const inner = wrap.querySelector('.tiltInner');
+      if (!inner) return;
+
+      wrap.addEventListener('mousemove', (e) => {
+        const r = wrap.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width;   // 0..1
+        const y = (e.clientY - r.top) / r.height;   // 0..1
+        const rx = (0.5 - y) * 6;                   // rotateX
+        const ry = (x - 0.5) * 8;                   // rotateY
+        inner.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+      });
+
+      wrap.addEventListener('mouseleave', () => {
+        inner.style.transform = 'rotateX(0deg) rotateY(0deg)';
+      });
+    });
+  </script>
+
+  <script>
+    // Scroll tracking (GA4)
+    let scrollTracked25 = false;
+    let scrollTracked50 = false;
+    let scrollTracked75 = false;
+    let scrollTracked100 = false;
+
+    window.addEventListener('scroll', function() {
+      const scrollPercent = (window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100;
+
+      if (scrollPercent > 25 && !scrollTracked25) {
+        scrollTracked25 = true;
+        gtag('event', 'scroll_25');
+      }
+      if (scrollPercent > 50 && !scrollTracked50) {
+        scrollTracked50 = true;
+        gtag('event', 'scroll_50');
+      }
+      if (scrollPercent > 75 && !scrollTracked75) {
+        scrollTracked75 = true;
+        gtag('event', 'scroll_75');
+      }
+      if (scrollPercent > 95 && !scrollTracked100) {
+        scrollTracked100 = true;
+        gtag('event', 'scroll_100');
+      }
+    });
+  </script>
 </body>
 </html>
